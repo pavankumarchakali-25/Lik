@@ -1233,12 +1233,20 @@ function getLastAIMessage() {
 ${CHARACTER_PROMPT},
 ${lastReply},
 ${prompt},
-realistic, cinematic, highly detailed
+
+portrait photography, DSLR, 50mm lens,
+natural skin texture, realistic face,
+soft lighting, depth of field,
+high detail, sharp focus,
+no distortion, no extra limbs, no cartoon
 `;
   } else {
     finalPrompt = `
 ${prompt},
-realistic, good lighting
+
+photorealistic, natural lighting,
+DSLR photography, high detail,
+sharp focus, realistic textures
 `;
   }
 
