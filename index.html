@@ -1263,35 +1263,24 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
 
     try {
       if (isImgRequest(msg)) {
-        const clean = cleanImgPrompt(msg);
-        const ctx   = getContext();
-        const finalPrompt = `Context:\n${ctx}\n\nImage: ${clean}\n\nStyle: ultra realistic, 4k, cinematic lighting, highly detailed, professional photography`;
-        showToast('🎨 Generating image...');
-        try {
-          const url = await generateImage(finalPrompt);
-          if (!url) {
-            renderMsg('assistant', "I couldn't generate the image. Try checking your Image API settings 😅");
-          } else {
-            renderImg(url);
-            setTimeout(() => renderMsg('assistant', 'Hope you like it 😊'), 400);
-          }
-        } catch (imgErr) {
-          console.error('Image error:', imgErr);
-          renderMsg('assistant', `Hmm, that didn't work 😅 Check your Image API settings and try again?`);
-        }
-      } else {
-        const reply = await callChatAPI(msg);
-        renderMsg('assistant', reply);
-      }
-    } catch (err) {
-      console.error('API error:', err);
-      renderMsg('assistant', `Oh no, something went wrong 😔 ${err.message || 'Check your API key and try again.'}`);
-      showToast('⚠️ ' + (err.message || 'Unknown error'));
-    } finally {
-      EL.typing.classList.remove('visible');
-      EL.sendBtn.disabled = !S.apiKey;
-      EL.input.focus();
+  const clean = cleanImgPrompt(msg);
+
+  showToast('🎨 Generating image...');
+
+  try {
+    const url = await callGeminiImage(clean);
+
+    if (!url) {
+      renderMsg('assistant', "Couldn't generate image 😅 Try again?");
+    } else {
+      renderImg(url);
+      setTimeout(() => renderMsg('assistant', 'Hope you like it 😊'), 400);
     }
+  } catch (err) {
+    console.error(err);
+    renderMsg('assistant', "Image generation failed 😔");
+  }
+}
   }
 
   /* ════════════════════════════════════
@@ -1363,6 +1352,50 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
       return text.replace(/—/g, ',');
     }
   }
+   async function callGeminiImage(prompt) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          role: "user",
+          parts: [
+            {
+              text: `Create a highly detailed, ultra realistic image of: ${prompt}`
+            }
+          ]
+        }],
+        generationConfig: {
+          responseModalities: ["TEXT", "IMAGE"]
+        }
+      })
+    }
+  );
+
+  if (!res.ok) {
+    let err = "Gemini failed";
+    try {
+      const data = await res.json();
+      err = data.error?.message || err;
+    } catch (_) {}
+    throw new Error(err);
+  }
+
+  const data = await res.json();
+
+  const imagePart = data.candidates?.[0]?.content?.parts?.find(
+    p => p.inlineData
+  );
+
+  if (!imagePart) return null;
+
+  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+}
+    
 
   /* ════════════════════════════════════
      START
