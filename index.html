@@ -1341,7 +1341,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
         parts: [{ text: m.content }]
       }));
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${S.apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1366,7 +1366,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
   }
    async function callGeminiImage(prompt) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.imageApiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${S.imageApiKey}`,
     {
       method: 'POST',
       headers: {
@@ -1382,7 +1382,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
           ]
         }],
         generationConfig: {
-          responseModalities: ["TEXT", "IMAGE"]
+          responseModalities: ["IMAGE"]
         }
       })
     }
@@ -1399,9 +1399,11 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
 
   const data = await res.json();
 
-  const imagePart = data.candidates?.[0]?.content?.parts?.find(
-    p => p.inlineData
-  );
+  const parts = data.candidates?.[0]?.content?.parts || [];
+
+const imagePart = parts.find(p => p.inlineData);
+
+console.log(data);
 
   if (!imagePart) return null;
 
