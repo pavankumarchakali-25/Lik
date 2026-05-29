@@ -848,6 +848,12 @@ html.dark #toast { background: #1e293b; }
   'use strict';
 
   /* ── Constants ── */
+  const CHARACTER_PROMPT = `
+A beautiful Indian woman in her mid 30s, expressive eyes, warm smile,
+long black hair, elegant face, soft natural makeup,
+friendly, charming, and approachable personality,
+realistic skin texture, cinematic lighting
+`;
   const AI_AVATAR   = 'https://imgcdn.stablediffusionweb.com/2024/10/10/e0767e9f-a289-4fd2-b794-56e7d8e0b675.jpg';
   const FB_AVATAR   = 'https://ui-avatars.com/api/?name=L&background=f43f5e&color=fff';
   const GROQ_URL    = 'https://api.groq.com/openai/v1/chat/completions';
@@ -1202,35 +1208,64 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
   /* ════════════════════════════════════
      IMAGE GENERATION
   ════════════════════════════════════ */
-  async function generateImage(prompt) {
-    if (!S.imageApiKey || !S.imageApiUrl) return null;
-    const res = await fetch(S.imageApiUrl, {
+ async function generateImage(prompt) {
+  if (!S.imageApiKey) {
+    throw new Error("Add Image API key in settings ⚙️");
+  }
+
+  let finalPrompt = prompt;
+
+  // detect "your image"
+  if (/your image|yourself|you/i.test(prompt)) {
+    finalPrompt = `
+${CHARACTER_PROMPT},
+${prompt},
+ultra realistic, cinematic, 4k, highly detailed
+`;
+  } else {
+    finalPrompt = `
+${prompt},
+ultra realistic, cinematic lighting, 4k
+`;
+  }
+
+  const res = await fetch(
+    S.imageApiUrl || "https://api.stability.ai/v2beta/stable-image/generate/core",
+    {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${S.imageApiKey}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json, image/*'
+        'Accept': 'application/json'
       },
-      body: JSON.stringify({ prompt })
-    });
-    if (!res.ok) {
-      let d = '';
-      try { d = (await res.text()).slice(0, 120); } catch(_) {}
-      throw new Error(`Image API ${res.status}${d ? ': ' + d : ''}`);
+      body: JSON.stringify({
+        prompt: finalPrompt,
+        output_format: "png"
+      })
     }
-    const ct = res.headers.get('content-type') || '';
-    if (ct.includes('application/json')) {
-      const data = await res.json();
-      const b64 = data.image || data.b64_json
-        || data.data?.[0]?.b64_json
-        || data.artifacts?.[0]?.base64
-        || data.output?.[0];
-      if (!b64) throw new Error('No image field in API response');
-      return `data:image/png;base64,${b64}`;
-    } else {
-      return URL.createObjectURL(await res.blob());
-    }
+  );
+
+  if (!res.ok) {
+    let d = '';
+    try { d = (await res.text()).slice(0, 120); } catch(_) {}
+    throw new Error(`Image API ${res.status}${d ? ': ' + d : ''}`);
   }
+
+  const data = await res.json();
+
+  const b64 =
+    data.image ||
+    data.b64_json ||
+    data.data?.[0]?.b64_json ||
+    data.artifacts?.[0]?.base64;
+
+  if (!b64) {
+    console.log(data);
+    throw new Error("No image returned");
+  }
+
+  return `data:image/png;base64,${b64}`;
+}
 
   /* ════════════════════════════════════
      HANDLE SUBMIT
@@ -1268,7 +1303,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
     showToast('🎨 Generating image...');
 
     try {
-      const url = await callGeminiImage(clean);
+      const url = await generateImage(clean);
 
       if (!url) {
         renderMsg('assistant', "Couldn't generate image 😅 Try again?");
@@ -1341,7 +1376,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
         parts: [{ text: m.content }]
       }));
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${S.apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1364,53 +1399,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
       return text.replace(/—/g, ',');
     }
   }
-   async function callGeminiImage(prompt) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${S.imageApiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          role: "user",
-          parts: [
-            {
-              text: `Create a highly detailed, ultra realistic image of: ${prompt}`
-            }
-          ]
-        }],
-        generationConfig: {
-          responseModalities: ["IMAGE"]
-        }
-      })
-    }
-  );
-
-  if (!res.ok) {
-    let err = "Gemini failed";
-    try {
-      const data = await res.json();
-      err = data.error?.message || err;
-    } catch (_) {}
-    throw new Error(err);
-  }
-
-  const data = await res.json();
-
-  const parts = data.candidates?.[0]?.content?.parts || [];
-
-const imagePart = parts.find(p => p.inlineData);
-
-console.log(data);
-
-  if (!imagePart) return null;
-
-  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
-}
-    
-
+   
   /* ════════════════════════════════════
      START
   ════════════════════════════════════ */
