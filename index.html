@@ -1216,7 +1216,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
   let finalPrompt = prompt;
 
   // detect "your image"
-  if (/your image|yourself|you/i.test(prompt)) {
+  if (/your image|yourself|show yourself/i.test(prompt)) {
     finalPrompt = `
 ${CHARACTER_PROMPT},
 ${prompt},
@@ -1229,19 +1229,19 @@ ultra realistic, cinematic lighting, 4k
 `;
   }
 
+  const formData = new FormData();
+  formData.append("prompt", finalPrompt);
+  formData.append("output_format", "png");
+
   const res = await fetch(
     S.imageApiUrl || "https://api.stability.ai/v2beta/stable-image/generate/core",
     {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${S.imageApiKey}`,
-        'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({
-        prompt: finalPrompt,
-        output_format: "png"
-      })
+      body: formData
     }
   );
 
