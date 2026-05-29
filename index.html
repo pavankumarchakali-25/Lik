@@ -1192,11 +1192,8 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
   }
 
   function cleanImgPrompt(msg) {
-    return msg
-      .replace(/\b(generate|create|make|send|draw|show me|show)\b/gi, '')
-      .replace(/\b(an? )?(image|photo|picture|pic)\s*(of|for)?\b/gi, '')
-      .trim() || 'a realistic scene with natural lighting';
-  }
+  return msg.trim();
+}
 
   function getContext() {
     return S.messages.slice(-4)
@@ -1208,24 +1205,40 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
   /* ════════════════════════════════════
      IMAGE GENERATION
   ════════════════════════════════════ */
+function getLastAIMessage() {
+  for (let i = S.messages.length - 1; i >= 0; i--) {
+    if (S.messages[i].role === 'assistant' && S.messages[i].content !== '[image]') {
+      return S.messages[i].content;
+    }
+  }
+  return '';
+}
+
+  
  async function generateImage(prompt) {
   if (!S.imageApiKey) {
     throw new Error("Add Image API key in settings ⚙️");
   }
 
-  let finalPrompt = prompt;
+  const lastReplyRaw = getLastAIMessage();
+
+  // clean expressions like *smiles*
+  const lastReply = lastReplyRaw.replace(/\*.*?\*/g, '');
+
+  let finalPrompt;
 
   // detect "your image"
   if (/your image|yourself|show yourself/i.test(prompt)) {
     finalPrompt = `
 ${CHARACTER_PROMPT},
+${lastReply},
 ${prompt},
-realistic, good lighting, highly detailed
+realistic, cinematic, highly detailed
 `;
   } else {
     finalPrompt = `
 ${prompt},
-ultra realistic, cinematic lighting, 4k
+realistic, good lighting
 `;
   }
 
@@ -1247,7 +1260,7 @@ ultra realistic, cinematic lighting, 4k
 
   if (!res.ok) {
     let d = '';
-    try { d = (await res.text()).slice(0, 120); } catch(_) {}
+    try { d = (await res.text()).slice(0, 120); } catch (_) {}
     throw new Error(`Image API ${res.status}${d ? ': ' + d : ''}`);
   }
 
