@@ -1262,26 +1262,30 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
     scrollBottom();
 
     try {
-      if (isImgRequest(msg)) {
-  const clean = cleanImgPrompt(msg);
+  if (isImgRequest(msg)) {
+    const clean = cleanImgPrompt(msg);
 
-  showToast('🎨 Generating image...');
+    showToast('🎨 Generating image...');
 
-  try {
-    const url = await callGeminiImage(clean);
+    try {
+      const url = await callGeminiImage(clean);
 
-    if (!url) {
-      renderMsg('assistant', "Couldn't generate image 😅 Try again?");
-    } else {
-      renderImg(url);
-      setTimeout(() => renderMsg('assistant', 'Hope you like it 😊'), 400);
+      if (!url) {
+        renderMsg('assistant', "Couldn't generate image 😅 Try again?");
+      } else {
+        renderImg(url);
+        setTimeout(() => renderMsg('assistant', 'Hope you like it 😊'), 400);
+      }
+    } catch (err) {
+      console.error(err);
+      renderMsg('assistant', "Image generation failed 😔");
     }
-  } catch (err) {
-    console.error(err);
-    renderMsg('assistant', "Image generation failed 😔");
+
+  } else {
+    const reply = await callChatAPI(msg);
+    renderMsg('assistant', reply);
   }
 }
-  }
 
   /* ════════════════════════════════════
      CHAT API
@@ -1329,7 +1333,7 @@ IMPORTANT: Never break character. Never say you are an AI. You are likhita, alwa
         parts: [{ text: m.content }]
       }));
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.imageApiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
