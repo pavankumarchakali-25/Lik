@@ -1217,68 +1217,55 @@ function getLastAIMessage() {
   
  async function generateImage(prompt) {
   if (!S.imageApiKey) {
-    throw new Error("Add Image API key in settings ⚙️");
+    throw new Error("Add HuggingFace API key ⚙️");
   }
 
   const lastReplyRaw = getLastAIMessage();
-
-  // clean expressions like *smiles*
   const lastReply = lastReplyRaw.replace(/\*.*?\*/g, '');
 
   let finalPrompt;
 
-  // detect "your image"
   if (/your image|yourself|show yourself/i.test(prompt)) {
     finalPrompt = `
 ${CHARACTER_PROMPT},
 ${lastReply},
 ${prompt},
 
-portrait photography, DSLR, 50mm lens,
-natural skin texture, realistic face,
-soft lighting, depth of field,
-high detail, sharp focus,
-no distortion, no extra limbs, no cartoon
+realistic human photo, natural skin texture,
+soft natural lighting, taken with iPhone camera,
+slight imperfections, normal face proportions
 `;
   } else {
     finalPrompt = `
 ${prompt},
-
-photorealistic, natural lighting,
-DSLR photography, high detail,
-sharp focus, realistic textures
+realistic photo, natural lighting
 `;
   }
 
-  const formData = new FormData();
-  formData.append("prompt", finalPrompt);
-  formData.append("output_format", "png");
-
   const res = await fetch(
-    S.imageApiUrl || "https://api.stability.ai/v2beta/stable-image/generate/core",
+    "https://router.huggingface.co/nscale/v1/images/generations",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${S.imageApiKey}`,
-        'Accept': 'application/json'
+        "Authorization": `Bearer ${S.imageApiKey}`,
+        "Content-Type": "application/json"
       },
-      body: formData
+      body: JSON.stringify({
+        model: "stabilityai/stable-diffusion-xl-base-1.0",
+        prompt: finalPrompt,
+        response_format: "b64_json"
+      })
     }
   );
 
   if (!res.ok) {
-    let d = '';
-    try { d = (await res.text()).slice(0, 120); } catch (_) {}
-    throw new Error(`Image API ${res.status}${d ? ': ' + d : ''}`);
+    const err = await res.text();
+    throw new Error("HF Error: " + err);
   }
 
   const data = await res.json();
 
-  const b64 =
-    data.image ||
-    data.b64_json ||
-    data.data?.[0]?.b64_json ||
-    data.artifacts?.[0]?.base64;
+  const b64 = data.data?.[0]?.b64_json;
 
   if (!b64) {
     console.log(data);
