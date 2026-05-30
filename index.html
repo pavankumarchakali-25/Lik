@@ -1231,24 +1231,19 @@ ${CHARACTER_PROMPT},
 ${lastReply},
 ${prompt},
 
-a real candid photo of a normal Indian woman,
-taken casually with a mobile phone camera,
+full body shot, head to toe visible,
+standing pose, entire body in frame,
 
-natural skin texture with visible pores,
-slight acne, tiny blemishes, uneven skin tone,
-slight asymmetry in face, not perfectly symmetrical,
+realistic photo of a normal Indian woman,
+natural skin texture, slight imperfections,
 
-natural expression, relaxed face, not posing,
-slightly messy hair, realistic human look,
+taken with mobile camera,
+natural lighting, casual environment,
 
-soft natural daylight, indoor or outdoor ambient lighting,
-slight shadows, slightly imperfect lighting,
-
-slight motion blur, slight camera noise,
-background like a real home or street, not studio,
-
-no beauty filter, no makeup filter, no airbrushing,
-not a painting, not CGI, not digital art
+proper proportions, feet visible, not cropped,
+no zoomed face, no close-up,
+camera placed far, wide shot, full frame composition,
+not a portrait, full length photo
 `;
   } else {
     finalPrompt = `
@@ -1266,7 +1261,7 @@ realistic photo, natural lighting
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "stabilityai/stable-diffusion-xl-base-1.0",
+        model: "Lykon/DreamShaper:fastest",
         prompt: finalPrompt,
         response_format: "b64_json"
       })
