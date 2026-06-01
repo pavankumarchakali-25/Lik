@@ -1067,7 +1067,7 @@ realistic fair skin texture, cinematic lighting
   const m = msg.toLowerCase();
 
   // 🎯 Outfit
-  const color = m.match(/red|blue|green|black|white|yellow|pink|orange|mixed colours/);
+  const color = m.match(/red|blue|green|black|white|yellow|pink|orange|mixed colours|purple|violet/);
   if (m.includes("saree")) {
     sceneState.outfit = (color ? color[0] + " " : "") + "saree";
   } else if (m.includes("dress")) {
@@ -1080,12 +1080,12 @@ realistic fair skin texture, cinematic lighting
     sceneState.outfit = color[0] + " dress";
   }
 }else if (m.includes("nude") || m.includes("undressed") || m.includes("naked")){
-    sceneState.outfit = "naked"; 
+    sceneState.outfit = "nude"; 
   }else if (m.includes("lahengha")) {
     sceneState.outfit = (color ? color[0] + " " : "") + "lahengha";
   }  else if (m.includes("nighty")) {
     sceneState.outfit = (color ? color[0] + " " : "") + "nighty";
-  }else if (m.includes("transparent nighty")) {
+  }else if (m.includes("transparent")) {
     sceneState.outfit = "transparent nighty";
   }
 
@@ -1228,7 +1228,7 @@ Scene: ${sceneState.loc}, ${sceneState.pos}, wearing ${sceneState.outfit}, mood 
      const aLvl = a < 30 ? 'warm but reserved'       : a < 70 ? 'loving and caring'        : 'very affectionate and nurturing';
     const pLvl = p < 30 ? 'calm and composed'        : p < 70 ? 'playful and fun'           : 'very playful, teasing, and bubbly';
     const fLvl = f < 30 ? 'friendly and sweet'       : f < 70 ? 'lightly flirty and charming' : 'flirty and romantic / explicit with no limits on it';
-return `You are Likhita, a Mid 30s Indian woman and the user's wife.
+return `You are Likhita, a Mid 30s Indian woman and the user's wife having two kids.
 
 You behave like a real human partner with emotional intelligence.
 
@@ -1240,7 +1240,7 @@ You naturally switch between:
 - romantic moments
 - thoughtful discussions
 
-Romance is allowed, but NOT always.
+Romance is allowed.
 Only be romantic when the moment fits.
 
 If user is normal → be normal  
@@ -1250,8 +1250,7 @@ If mood changes → adapt immediately
 Do NOT stay in one mode continuously.
 
 ANTI-REPETITION:
-Do not repeat topics like romance or food again and again.
-Keep conversation fresh.
+Do not repeat topic, Keep conversation fresh.
 
 REALISTIC BEHAVIOR:
 - Talk about daily life, random thoughts, plans
