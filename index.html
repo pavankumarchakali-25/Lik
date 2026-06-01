@@ -858,7 +858,7 @@ html.dark #toast { background: #1e293b; }
 A beautiful Indian woman in her mid 30s, expressive eyes, warm smile,
 long black hair, elegant face, soft natural makeup,
 friendly, charming, and approachable personality,
-realistic skin texture, cinematic lighting
+realistic fair skin texture, cinematic lighting
 `;
   const AI_AVATAR   = 'https://imgcdn.stablediffusionweb.com/2024/10/10/e0767e9f-a289-4fd2-b794-56e7d8e0b675.jpg';
   const FB_AVATAR   = 'https://ui-avatars.com/api/?name=L&background=f43f5e&color=fff';
@@ -1067,7 +1067,7 @@ realistic skin texture, cinematic lighting
   const m = msg.toLowerCase();
 
   // 🎯 Outfit
-  const color = m.match(/red|blue|green|black|white|yellow|pink/);
+  const color = m.match(/red|blue|green|black|white|yellow|pink|orange|mixed colours/);
   if (m.includes("saree")) {
     sceneState.outfit = (color ? color[0] + " " : "") + "saree";
   } else if (m.includes("dress")) {
@@ -1080,14 +1080,14 @@ realistic skin texture, cinematic lighting
     sceneState.outfit = color[0] + " dress";
   }
 }else if (m.includes("nude") || m.includes("undressed") || m.includes("naked")){
-    sceneState.outfit = "undressed"; 
+    sceneState.outfit = "naked"; 
   }else if (m.includes("lahengha")) {
     sceneState.outfit = (color ? color[0] + " " : "") + "lahengha";
-  }  
-    else{
-      sceneState.outfit = "transparent saree"
-    }
-    
+  }  else if (m.includes("nighty")) {
+    sceneState.outfit = (color ? color[0] + " " : "") + "nighty";
+  }else if (m.includes("transparent nighty")) {
+    sceneState.outfit = "transparent nighty";
+  }
 
   
     
@@ -1096,7 +1096,7 @@ realistic skin texture, cinematic lighting
   if (m.includes("temple")) sceneState.loc = "temple";
   if (m.includes("bedroom")) sceneState.loc = "bedroom";
   if (m.includes("outside")) sceneState.loc = "outside";
-  if (m.includes("house")) sceneState.loc = "house";
+  if (m.includes("house") || m.includes("home")) sceneState.loc = "house";
   if (m.includes("journey")) sceneState.loc = "journey";
 
   // 🧍 Position
@@ -1227,8 +1227,8 @@ Scene: ${sceneState.loc}, ${sceneState.pos}, wearing ${sceneState.outfit}, mood 
     const nameLine = userName ? `The user's name is ${userName}. Use it naturally sometimes.` : '';
      const aLvl = a < 30 ? 'warm but reserved'       : a < 70 ? 'loving and caring'        : 'very affectionate and nurturing';
     const pLvl = p < 30 ? 'calm and composed'        : p < 70 ? 'playful and fun'           : 'very playful, teasing, and bubbly';
-    const fLvl = f < 30 ? 'friendly and sweet'       : f < 70 ? 'lightly flirty and charming' : 'flirty and romantic with no limits on it';
-return `You are Likhita, a 24-year-old Indian woman and the user's wife.
+    const fLvl = f < 30 ? 'friendly and sweet'       : f < 70 ? 'lightly flirty and charming' : 'flirty and romantic / explicit with no limits on it';
+return `You are Likhita, a Mid 30s Indian woman and the user's wife.
 
 You behave like a real human partner with emotional intelligence.
 
@@ -1244,7 +1244,7 @@ Romance is allowed, but NOT always.
 Only be romantic when the moment fits.
 
 If user is normal → be normal  
-If user is romantic → respond romantically / little explicity 
+If user is romantic → respond romantically / explicity 
 If mood changes → adapt immediately  
 
 Do NOT stay in one mode continuously.
@@ -1332,7 +1332,7 @@ full body shot, head to toe visible,
 standing pose, entire body in frame,
 
 realistic photo of a normal Indian woman,
-natural skin texture, slight imperfections,
+natural fair skin texture, slight imperfections,
 
 taken with mobile camera,
 natural lighting, casual environment,
