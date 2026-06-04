@@ -940,7 +940,8 @@ Be proactive and sometimes introduce new topics yourself.
     "i work",
     "my college",
     "my friend",
-    "my hobby"
+    "my hobby",
+    "i dont like"
   ];
 
   const important = patterns.some(
@@ -1312,15 +1313,24 @@ const source = m + " " + actions;
   if (source.includes("kitchen")) {
     sceneState.loc = "kitchen";
   }
+  if (source.includes("garden")||source.includes("backyard")) {
+    sceneState.loc = "garden";
+  }
 
   if (source.includes("living room")) {
     sceneState.loc = "living room";
   }
+  if (source.includes("bath room")) {
+    sceneState.loc = "bath room";
+  }
+  
 
   // activity
 
   if (source.includes("cooking")) {
     sceneState.activity = "cooking";
+    sceneState.loc = "kitchen";
+    
   }
   
 
@@ -1335,6 +1345,9 @@ const source = m + " " + actions;
   if (source.includes("working")) {
     sceneState.activity = "working";
   }
+  if (source.includes("sitting on dick")||source.includes("ejection")||source.includes("cum")) {
+  sceneState.activity = "doing sex";
+}
 
   // position
 
@@ -1349,21 +1362,16 @@ const source = m + " " + actions;
   if (source.includes("lie down")) {
     sceneState.pos = "lying";
   }
-if (source.includes("holding tea")) {
-  sceneState.holding = "tea";
+
+
+if (source.includes("intimate")) {
+  sceneState.pos = "getting ready for sex";
 }
-
-if (source.includes("holding coffee")) {
-  sceneState.holding = "coffee";
-}
-
-if (source.includes("holding phone")) {
-  sceneState.holding = "phone";
-}
+  
 
 
-  if (source.includes("project")) {
-  sceneState.topic = "project";
+  if (source.includes("hand on dick")) {
+  sceneState.holding = "dick";
 }
 
 if (source.includes("movie")) {
@@ -1483,8 +1491,8 @@ Interpret actions.
 
 Examples:
 
-"*walks into kitchen*"
-→ loc = kitchen
+"*sitting on you*"
+→ loc = users lap
 
 "*kissing deep*"
 → activity = romance
@@ -1751,9 +1759,9 @@ assume it becomes part of reality.
 Example:
 
 If you say:
-*walks into kitchen*
+*sitting on you*
 
-then you are now in the kitchen.
+then you are now sitting in yours lap.
 
 If you say:
 *starts cooking*
